@@ -49,6 +49,17 @@ jobs:
       matrix:
         target: [rpi0, rpi0_2, rpi3, rpi4, rpi5]
     steps:
+      # GitHub-hosted runners have only ~14 GB free, which a full Nerves
+      # buildroot build can exhaust ("No space left on device" — seen on
+      # rpi5/hailort). Reclaim ~25-30 GB of preinstalled tooling first.
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/powershell \
+            /usr/share/swift 2>/dev/null || true
+          sudo docker image prune --all --force 2>/dev/null || true
+          df -h /
+
       - uses: actions/checkout@v4
 
       # Buildroot host dependencies (Nerves "Installing on Linux" list).
