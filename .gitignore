@@ -1,0 +1,18 @@
+# Elixir / Mix
+/*/_build/
+/*/deps/
+/*/cover/
+/*/doc/
+*.ez
+erl_crash.dump
+
+# Nerves / Buildroot build outputs + packaged artifacts
+/*/.nerves/
+/*/nerves/
+*.tar.gz
+*.fw
+*.img
+
+# Editor / OS
+.elixir_ls/
+.DS_Store
