@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [rpi3]   # add rpi4, rpi0_2, ... as you fork them
+        target: [rpi0, rpi0_2, rpi3, rpi4, rpi5]
     steps:
       - uses: actions/checkout@v4
 

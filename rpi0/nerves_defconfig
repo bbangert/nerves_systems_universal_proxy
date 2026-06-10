@@ -1,11 +1,10 @@
 BR2_arm=y
-BR2_cortex_a53=y
-BR2_ARM_FPU_NEON_FP_ARMV8=y
+BR2_arm1176jzf_s=y
 BR2_TOOLCHAIN_EXTERNAL=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM=y
 BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD=y
-BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v13.2.0/nerves_toolchain_armv7_nerves_linux_gnueabihf-linux_${shell uname -m}-13.2.0-BE3EA83.tar.xz"
-BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="armv7-nerves-linux-gnueabihf"
+BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v13.2.0/nerves_toolchain_armv6_nerves_linux_gnueabihf-linux_${shell uname -m}-13.2.0-363664F.tar.xz"
+BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="armv6-nerves-linux-gnueabihf"
 BR2_TOOLCHAIN_EXTERNAL_GCC_13=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_5_4=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
@@ -32,14 +31,10 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20250916.tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="${NERVES_DEFCONFIG_DIR}/linux-6.12.defconfig"
-# Custom: merge our Bluetooth (+ USB-audio) kernel options over the base
-# defconfig. linux-bluetooth.config is kept in sync from ../shared via `make
-# sync` (see repo README). Path is subdir-local so git `sparse:` consumption
-# and artifact checksums stay correct.
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config"
 BR2_LINUX_KERNEL_XZ=y
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
-BR2_LINUX_KERNEL_INTREE_DTS_NAME="broadcom/bcm2710-rpi-3-b broadcom/bcm2710-rpi-cm3 broadcom/bcm2710-rpi-3-b-plus broadcom/bcm2710-rpi-zero-2-w"
+BR2_LINUX_KERNEL_INTREE_DTS_NAME="broadcom/bcm2708-rpi-zero-w broadcom/bcm2708-rpi-zero"
 BR2_LINUX_KERNEL_CUSTOM_DTS_PATH="${NERVES_DEFCONFIG_DIR}/ramoops-overlay.dts"
 BR2_LINUX_KERNEL_NEEDS_HOST_OPENSSL=y
 BR2_PACKAGE_BUSYBOX_CONFIG="${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/busybox.config"
@@ -49,14 +44,11 @@ BR2_PACKAGE_ALSA_UTILS_AMIXER=y
 BR2_PACKAGE_ALSA_UTILS_APLAY=y
 BR2_PACKAGE_E2FSPROGS=y
 # BR2_PACKAGE_E2FSPROGS_FSCK is not set
-BR2_PACKAGE_LINUX_FIRMWARE=y
-BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
 BR2_PACKAGE_RPI_FIRMWARE=y
 BR2_PACKAGE_RPI_FIRMWARE_CUSTOM_VERSION="1.20250915"
 BR2_PACKAGE_RPI_FIRMWARE_BOOTCODE_BIN=y
 BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI_X=y
 BR2_PACKAGE_PIGPIO=y
-BR2_PACKAGE_RPI_USERLAND=y
 # BR2_PACKAGE_ALSA_LIB_RAWMIDI is not set
 # BR2_PACKAGE_ALSA_LIB_HWDEP is not set
 # BR2_PACKAGE_ALSA_LIB_SEQ is not set
@@ -66,11 +58,9 @@ BR2_PACKAGE_LIBP11=y
 BR2_PACKAGE_UNIXODBC=y
 BR2_PACKAGE_CAIRO=y
 BR2_PACKAGE_DTC=y
-BR2_PACKAGE_DTC_PROGRAMS=y
 BR2_PACKAGE_LIBMNL=y
 BR2_PACKAGE_WIRELESS_REGDB=y
 BR2_PACKAGE_WPA_SUPPLICANT=y
-BR2_PACKAGE_WPA_SUPPLICANT_WIRED=y
 BR2_PACKAGE_WPA_SUPPLICANT_AP_SUPPORT=y
 BR2_PACKAGE_WPA_SUPPLICANT_MESH_NETWORKING=y
 BR2_PACKAGE_WPA_SUPPLICANT_AUTOSCAN=y
@@ -80,7 +70,7 @@ BR2_PACKAGE_WPA_SUPPLICANT_WPS=y
 BR2_PACKAGE_WPA_SUPPLICANT_WPA3=y
 BR2_PACKAGE_WPA_SUPPLICANT_CTRL_IFACE=y
 # BR2_TARGET_ROOTFS_TAR is not set
-BR2_NERVES_SYSTEM_NAME="nerves_system_rpi3"
+BR2_NERVES_SYSTEM_NAME="nerves_system_rpi0"
 BR2_NERVES_ADDITIONAL_IMAGE_FILES="${NERVES_DEFCONFIG_DIR}/fwup.conf ${NERVES_DEFCONFIG_DIR}/cmdline-a.txt ${NERVES_DEFCONFIG_DIR}/cmdline-b.txt ${NERVES_DEFCONFIG_DIR}/config.txt"
 BR2_PACKAGE_NBTTY=y
 BR2_PACKAGE_NERVES_CONFIG=y
@@ -89,22 +79,7 @@ BR2_PACKAGE_RPICAM_APPS=y
 BR2_PACKAGE_RPI_DISTRO_FIRMWARE_NONFREE=y
 BR2_PACKAGE_RPI_LIBCAMERA_V4L2=y
 
-# ---- Custom: Bluetooth via BlueZ + D-Bus --------------------------------
-# D-Bus system bus (required by bluetoothd) and the BlueZ stack/daemon.
-# BLUEZ5_UTILS builds bluetoothd with the GATT client/server support we need
-# built in — no separate "gatt plugin" symbol is required.
+# ---- Custom: Bluetooth via BlueZ + D-Bus ----
 BR2_PACKAGE_DBUS=y
 BR2_PACKAGE_BLUEZ5_UTILS=y
-# Optional, recommended for on-device debugging (bluetoothctl). Confirm the
-# exact sub-option spelling against this buildroot's
-# package/bluez5_utils/Config.in before relying on it:
-#   BR2_PACKAGE_BLUEZ5_UTILS_CLIENT=y   # bluetoothctl (selects readline)
-# If you need newer org.bluez interfaces (e.g. AdvertisementMonitor), also:
-#   BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y   # and start bluetoothd --experimental
-#
-# Controller firmware via the nerves_system_br package: installs the Pi BT
-# .hcd set + the board-specific symlinks btbcm requests (incl. the Zero 2 W
-# Synaptics blobs) into /lib/firmware/brcm. The stock image ships only WiFi
-# brcmfmac blobs and BlueZ carries no controller firmware, so btbcm needs
-# this. The kernel loads the .hcd matching the detected board/chip.
 BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y

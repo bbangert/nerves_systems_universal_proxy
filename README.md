@@ -5,23 +5,22 @@ Custom Nerves systems for the Universal Proxy project — forks of the upstream
 and USB-audio for USB DACs). One repo, one system per target subdirectory,
 built in CI so consumers never need a local buildroot toolchain.
 
-> **Replace `REPLACE_ORG`** in each `*/mix.exs` (`@github_organization` /
-> `@releases_repo`) with your GitHub org/user before pushing.
-
 ## Layout
 
 ```
 .
-├── shared/                     # canonical kernel config fragments (edit here)
-│   └── linux-bluetooth.config  #   → `make sync` copies into each target
-├── rpi3/                       # custom nerves_system_rpi3 (one Mix project)
+├── shared/
+│   └── linux-bluetooth.config  # canonical kernel fragment (edit here → make sync)
+├── rpi0/  rpi0_2/  rpi3/  rpi4/  rpi5/   # one Mix project per BT-capable target
 │   ├── mix.exs                 #   artifact_sites → THIS repo's Releases
-│   ├── nerves_defconfig        #   + BlueZ/D-Bus pkgs, + kernel fragment ref
-│   ├── linux-bluetooth.config  #   synced copy (referenced by the build)
-│   └── rootfs_overlay/lib/firmware/brcm/   # drop BCM4345C0.hcd here (see its README)
+│   ├── nerves_defconfig        #   + BlueZ/D-Bus + firmware pkgs + kernel fragment ref
+│   └── linux-bluetooth.config  #   synced copy (referenced by the build)
 ├── Makefile                    # `make sync` / `make check`
 └── .github/workflows/build.yml # matrix build → GitHub Releases
 ```
+
+Targets covered: **rpi0** (Zero W), **rpi0_2** (Zero 2 W), **rpi3** (3B/3B+/CM3),
+**rpi4** (4B/400/CM4), **rpi5**. `rpi`/`rpi2` have no onboard Bluetooth.
 
 Each target subdir is a **self-contained Nerves system** (its own
 `nerves_defconfig`, `fwup.conf`, overlay, and a local copy of any shared
@@ -45,28 +44,29 @@ git add -A && git commit
 checkout only fetches that one subdir and the artifact checksum only covers
 subdir-local files.)
 
-## Controller firmware (vendored, all BT-capable Pis)
+## Controller firmware (via the nerves_system_br package — no vendored blobs)
 
-`shared/firmware/brcm/*.hcd` holds the Broadcom BT patchram blobs for every
-BT-capable Raspberry Pi (from RPi-Distro/bluez-firmware). `make sync` copies
-the **whole set** into each target's `rootfs_overlay/lib/firmware/brcm/`; the
-kernel `btbcm` driver loads the one matching the detected chip, so there's no
-per-board mapping to get wrong. The stock image ships no `.hcd`, and BlueZ (the
-host stack) carries no controller firmware — see `shared/firmware/README.md`
-for the chip → board → target table.
+Each target's `nerves_defconfig` enables **`BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y`**,
+a nerves_system_br package that installs the Broadcom BT patchram set
+(`BCM43430A1/B0`, `BCM4345C0/C5`) **plus the board-specific symlinks `btbcm`
+requests first** (`BCM4345C0.raspberrypi,3-model-b-plus.hcd`, etc.) and the Pi
+Zero 2 W **Synaptics** blobs — to `/lib/firmware/brcm/`. The stock image ships
+only WiFi `brcmfmac` firmware and BlueZ (the host stack) carries no controller
+firmware, so this package is what lets the kernel bring up the radio. (rpi5
+already enabled it upstream.) No `.hcd` is committed to this repo — the package
+fetches them at build time and gets the board mapping right for us.
 
-## Adding another target (e.g. rpi4, rpi0_2)
+## Adding another target
 
-1. Copy the upstream system source into a new subdir:
-   `cp -r <deps>/nerves_system_rpi4 ./rpi4` (drop `hex_metadata.config`).
-2. In `rpi4/mix.exs`: set `@github_organization`/`@releases_repo` (as in rpi3),
-   add `"linux-bluetooth.config"` to `package_files()`.
-3. In `rpi4/nerves_defconfig`: add the `BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES`
-   line + the BlueZ/D-Bus package block (copy from `rpi3/nerves_defconfig`).
-4. Add `rpi4` to `TARGETS` in the `Makefile` and to the `matrix.target` list in
-   `.github/workflows/build.yml`, then `make sync` — the kernel fragment **and**
-   the full BT firmware set are copied in automatically (no per-board blob to
-   pick; `btbcm` loads the right `.hcd` for the detected chip).
+Same recipe as the existing five:
+1. Copy the upstream system into a new subdir (drop `.git`/`hex_metadata.config`).
+2. `mix.exs`: `@github_organization "bbangert"`, add `@releases_repo` +
+   `{:github_releases, @releases_repo}` in `artifact_sites`, add
+   `"linux-bluetooth.config"` to `package_files()`, set `VERSION` to `0.1.0`.
+3. `nerves_defconfig`: add the `BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES` line +
+   `BR2_PACKAGE_DBUS=y` / `BR2_PACKAGE_BLUEZ5_UTILS=y` /
+   `BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y`.
+4. Add it to `TARGETS` (Makefile) + `matrix.target` (build.yml), then `make sync`.
 
 ## How CI publishes, and how the project consumes it
 
@@ -77,7 +77,7 @@ for the chip → board → target table.
   upstream hex system):
 
   ```elixir
-  {:nerves_system_rpi3, github: "REPLACE_ORG/nerves_systems_universal_proxy",
+  {:nerves_system_rpi3, github: "bbangert/nerves_systems_universal_proxy",
      sparse: "rpi3", tag: "v0.1.0", runtime: false, targets: :rpi3, override: true},
   ```
 
