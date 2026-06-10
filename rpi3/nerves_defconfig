@@ -32,10 +32,6 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20250916.tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="${NERVES_DEFCONFIG_DIR}/linux-6.12.defconfig"
-# Custom: merge our Bluetooth (+ USB-audio) kernel options over the base
-# defconfig. linux-bluetooth.config is kept in sync from ../shared via `make
-# sync` (see repo README). Path is subdir-local so git `sparse:` consumption
-# and artifact checksums stay correct.
 BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config"
 BR2_LINUX_KERNEL_XZ=y
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
@@ -89,22 +85,7 @@ BR2_PACKAGE_RPICAM_APPS=y
 BR2_PACKAGE_RPI_DISTRO_FIRMWARE_NONFREE=y
 BR2_PACKAGE_RPI_LIBCAMERA_V4L2=y
 
-# ---- Custom: Bluetooth via BlueZ + D-Bus --------------------------------
-# D-Bus system bus (required by bluetoothd) and the BlueZ stack/daemon.
-# BLUEZ5_UTILS builds bluetoothd with the GATT client/server support we need
-# built in — no separate "gatt plugin" symbol is required.
+# ---- Custom: Bluetooth via BlueZ + D-Bus ----
 BR2_PACKAGE_DBUS=y
 BR2_PACKAGE_BLUEZ5_UTILS=y
-# Optional, recommended for on-device debugging (bluetoothctl). Confirm the
-# exact sub-option spelling against this buildroot's
-# package/bluez5_utils/Config.in before relying on it:
-#   BR2_PACKAGE_BLUEZ5_UTILS_CLIENT=y   # bluetoothctl (selects readline)
-# If you need newer org.bluez interfaces (e.g. AdvertisementMonitor), also:
-#   BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y   # and start bluetoothd --experimental
-#
-# Controller firmware via the nerves_system_br package: installs the Pi BT
-# .hcd set + the board-specific symlinks btbcm requests (incl. the Zero 2 W
-# Synaptics blobs) into /lib/firmware/brcm. The stock image ships only WiFi
-# brcmfmac blobs and BlueZ carries no controller firmware, so btbcm needs
-# this. The kernel loads the .hcd matching the detected board/chip.
 BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y

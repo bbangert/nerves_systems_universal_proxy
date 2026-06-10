@@ -3,11 +3,6 @@ defmodule NervesSystemRpi3.MixProject do
 
   @github_organization "bbangert"
   @app :nerves_system_rpi3
-  # Custom fork of nerves_system_rpi3 with the BlueZ/D-Bus Bluetooth stack and
-  # USB-audio kernel support. Lives in a monorepo with the other custom
-  # targets; prebuilt artifacts are published to that monorepo's GitHub
-  # Releases (see @releases_repo), so consumers download them and never need a
-  # local buildroot toolchain.
   @releases_repo "bbangert/nerves_systems_universal_proxy"
   @source_url "https://github.com/#{@releases_repo}"
   @version Path.join(__DIR__, "VERSION")
@@ -76,7 +71,7 @@ defmodule NervesSystemRpi3.MixProject do
   defp deps do
     [
       {:nerves, "~> 1.11", runtime: false},
-      {:nerves_system_br, "1.33.7", runtime: false},
+      {:nerves_system_br, "1.33.9", runtime: false},
       {:nerves_toolchain_armv7_nerves_linux_gnueabihf, "~> 13.2.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
