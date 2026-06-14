@@ -10,8 +10,10 @@
 # BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE, which installs the Pi BT .hcd set
 # (and the board-specific symlinks btbcm wants) at build time.
 
-# All BT-capable target forks. (rpi, rpi2 have no onboard Bluetooth.)
-TARGETS := rpi0 rpi0_2 rpi3 rpi4 rpi5
+# Every target fork. rpi/rpi2 (no onboard BT) and x86_64 are included for USB
+# Bluetooth adapters + USB audio; the onboard-BT kernel symbols in the shared
+# fragment are inert there but harmless.
+TARGETS := rpi rpi0 rpi0_2 rpi2 rpi3 rpi4 rpi5 x86_64
 
 CFG := $(wildcard shared/*.config)
 
