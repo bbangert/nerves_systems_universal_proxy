@@ -89,4 +89,9 @@ BR2_PACKAGE_RPI_LIBCAMERA_V4L2=y
 # linux-bluetooth.config; bluetoothd/dbus-daemon are launched by the app.
 BR2_PACKAGE_DBUS=y
 BR2_PACKAGE_BLUEZ5_UTILS=y
+# bluez-alsa: `bluealsad -p a2dp-source` exposes a connected A2DP headset as
+# the ALSA PCM `bluealsa:DEV=MAC,PROFILE=a2dp`, which sendspin opens directly
+# (no C changes). SBC only — AAC (fdk-aac) is gated on legal review. Selects
+# alsa-lib, libglib2, and sbc; peers with BR2_PACKAGE_BLUEZ5_UTILS above.
+BR2_PACKAGE_BLUEZ_ALSA=y
 BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y
