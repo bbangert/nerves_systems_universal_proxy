@@ -2,6 +2,10 @@
 
 set -e
 
+# Prune samba binaries the app never execs (see shared/samba-prune.sh);
+# safe no-op on this target (samba4 is never built on musl).
+sh "$(dirname "$0")/samba-prune.sh" "$1"
+
 # Create the Grub environment blocks
 grub-editenv $BINARIES_DIR/grubenv_a create
 grub-editenv $BINARIES_DIR/grubenv_a set boot=0

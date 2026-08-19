@@ -95,11 +95,16 @@ BR2_PACKAGE_BLUEZ_ALSA=y
 BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y
 
 # ---- Custom: USB storage backup (Samba) ----
-# smbd only — no nmbd (no NetBIOS/browsing), no winbindd (no domain/AD
-# accounts), no AD DC. The app generates smb.conf under /data/samba and runs
-# smbd via MuonTrap only while a share is enabled; nothing Samba-related
-# runs otherwise. Buildroot 2026.05.1 ships Samba 4.24.3; our glibc
-# toolchain satisfies its MMU/WCHAR/NPTL/!static/SYNC_4 gates.
+# Buildroot's samba4 package installs the full binary set unconditionally
+# — nmbd, winbindd, smbclient, and the other client tools all ship in the
+# image (verified in the built rootfs); the BR2_PACKAGE_SAMBA4_* options
+# below only gate AD DC support, ADS, and smbtorture. Nerves has no init
+# system, though: erlinit boots only the BEAM, so the app is the only
+# thing that ever execs a samba binary. It generates smb.conf under
+# /data/samba and, at runtime, runs exactly one samba process — smbd -F
+# under MuonTrap — only while a share is enabled; nmbd and winbindd never
+# execute. Buildroot 2026.05.1 ships Samba 4.24.3; our glibc toolchain
+# satisfies its MMU/WCHAR/NPTL/!static/SYNC_4 gates.
 BR2_PACKAGE_SAMBA4=y
 # BR2_PACKAGE_SAMBA4_AD_DC is not set
 # BR2_PACKAGE_SAMBA4_ADS is not set

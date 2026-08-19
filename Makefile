@@ -1,10 +1,14 @@
 # Monorepo helpers for the custom Nerves systems.
 #
-# Shared kernel config fragments live in shared/*.config. Each target subdir
+# Shared kernel config fragments live in shared/*.config, and other shared
+# inputs (e.g. the Buildroot users table, shared/users_table.txt; post-build
+# helper scripts, shared/samba-prune.sh) live in shared/*.txt and shared/*.sh
+# — all three are synced and checked identically. Each target subdir
 # must be SELF-CONTAINED (its own copy), so the main project can pull a single
 # target via a git `sparse:` dep and artifact checksums cover every build
-# input. `make sync` materializes the shared fragment(s) into each target;
-# edit shared/, run `make sync`, commit.
+# input. `make sync` materializes the shared fragment(s) into each target
+# (referenced there via ${NERVES_DEFCONFIG_DIR}); edit shared/, run
+# `make sync`, commit.
 #
 # Controller firmware is NOT vendored here — each system enables
 # BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE, which installs the Pi BT .hcd set
@@ -15,7 +19,7 @@
 # fragment are inert there but harmless.
 TARGETS := rpi rpi0 rpi0_2 rpi2 rpi3 rpi4 rpi5 x86_64
 
-CFG := $(wildcard shared/*.config) $(wildcard shared/*.txt)
+CFG := $(wildcard shared/*.config) $(wildcard shared/*.txt) $(wildcard shared/*.sh)
 
 .PHONY: sync check
 
