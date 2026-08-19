@@ -25,6 +25,7 @@ BR2_GENERATE_LOCALE="en_US.UTF-8"
 BR2_ROOTFS_OVERLAY="${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/rootfs_overlay ${NERVES_DEFCONFIG_DIR}/rootfs_overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-build.sh ${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-createfs.sh"
+BR2_ROOTFS_USERS_TABLES="${NERVES_DEFCONFIG_DIR}/users_table.txt"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20260527.tar.gz"
@@ -96,3 +97,14 @@ BR2_PACKAGE_BLUEZ_ALSA=y
 # Realtek RTL8761B/BU USB BT dongle firmware (e.g. TP-Link UB500) -> /lib/firmware/rtl_bt
 BR2_PACKAGE_LINUX_FIRMWARE=y
 BR2_PACKAGE_LINUX_FIRMWARE_RTL_87XX_BT=y
+
+# ---- Custom: USB storage backup (Samba) ----
+# smbd only — no nmbd (no NetBIOS/browsing), no winbindd (no domain/AD
+# accounts), no AD DC. The app generates smb.conf under /data/samba and runs
+# smbd via MuonTrap only while a share is enabled; nothing Samba-related
+# runs otherwise. Buildroot 2026.05.1 ships Samba 4.24.3; our glibc
+# toolchain satisfies its MMU/WCHAR/NPTL/!static/SYNC_4 gates.
+BR2_PACKAGE_SAMBA4=y
+# BR2_PACKAGE_SAMBA4_AD_DC is not set
+# BR2_PACKAGE_SAMBA4_ADS is not set
+# BR2_PACKAGE_SAMBA4_SMBTORTURE is not set

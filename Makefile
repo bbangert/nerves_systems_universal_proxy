@@ -15,7 +15,7 @@
 # fragment are inert there but harmless.
 TARGETS := rpi rpi0 rpi0_2 rpi2 rpi3 rpi4 rpi5 x86_64
 
-CFG := $(wildcard shared/*.config)
+CFG := $(wildcard shared/*.config) $(wildcard shared/*.txt)
 
 .PHONY: sync check
 

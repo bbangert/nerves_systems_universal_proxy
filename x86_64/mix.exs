@@ -118,6 +118,7 @@ defmodule NervesSystemX8664.MixProject do
       "post-createfs.sh",
       "README.md",
       "REUSE.toml",
+      "users_table.txt",
       "VERSION"
     ]
   end

@@ -127,6 +127,7 @@ defmodule NervesSystemRpi.MixProject do
       "ramoops-overlay.dts",
       "README.md",
       "REUSE.toml",
+      "users_table.txt",
       "VERSION"
     ]
   end
