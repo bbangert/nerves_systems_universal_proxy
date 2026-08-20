@@ -1,0 +1,4 @@
+# Unprivileged SMB account for the [usb_backup] share. uid/gid 1000 is
+# FIXED — the app's exFAT/NTFS mount options (uid=1000,gid=1000) and its
+# File.chown(mount, 1000, 1000) call depend on it.
+backup 1000 backup 1000 !locked /var/empty /bin/false - SMB backup share user

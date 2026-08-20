@@ -2,6 +2,10 @@
 
 set -e
 
+# Prune samba binaries the app never execs (see shared/samba-prune.sh);
+# safe no-op on targets without samba (x86_64/musl).
+sh "$(dirname "$0")/samba-prune.sh" "$1"
+
 # Create the fwup ops script to handling MicroSD/eMMC operations at runtime
 # NOTE: revert.fw is the previous, more limited version of this. ops.fw is
 #       backwards compatible.

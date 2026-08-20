@@ -127,6 +127,8 @@ defmodule NervesSystemRpi0.MixProject do
       "ramoops-overlay.dts",
       "README.md",
       "REUSE.toml",
+      "samba-prune.sh",
+      "users_table.txt",
       "VERSION"
     ]
   end

@@ -21,6 +21,7 @@ BR2_ENABLE_LOCALE_WHITELIST="locale-archive"
 BR2_ROOTFS_OVERLAY="${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/rootfs_overlay ${NERVES_DEFCONFIG_DIR}/rootfs_overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-build.sh ${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-createfs.sh"
+BR2_ROOTFS_USERS_TABLES="${NERVES_DEFCONFIG_DIR}/users_table.txt"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION=y
 BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE="6.18.36"
@@ -59,3 +60,15 @@ BR2_PACKAGE_BLUEZ5_UTILS=y
 # (no C changes). SBC only — AAC (fdk-aac) is gated on legal review. Selects
 # alsa-lib, libglib2, and sbc; peers with BR2_PACKAGE_BLUEZ5_UTILS above.
 BR2_PACKAGE_BLUEZ_ALSA=y
+
+# ---- Custom: USB storage backup (Samba) ----
+# samba4 is unavailable on this target's musl toolchain: it `depends on
+# !BR2_TOOLCHAIN_USES_MUSL`, and x86_64 builds with the musl external
+# toolchain (BR2_TOOLCHAIN_USES_MUSL=y in the generated buildroot .config),
+# so BR2_PACKAGE_SAMBA4 is an invisible symbol here — Kconfig silently drops
+# it and the built rootfs has no smbd (verified). The kernel storage/fs
+# symbols above and the backup user still ship, so drives mount and report
+# capacity, but the SMB share reports unsupported at runtime (the app checks
+# for the smbd binary and degrades per the Audio.Input "absent binary ⇒
+# degrade" posture). Revisit only if this target ever moves to a glibc
+# toolchain.

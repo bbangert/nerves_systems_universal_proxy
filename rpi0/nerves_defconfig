@@ -25,6 +25,7 @@ BR2_GENERATE_LOCALE="en_US.UTF-8"
 BR2_ROOTFS_OVERLAY="${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/rootfs_overlay ${NERVES_DEFCONFIG_DIR}/rootfs_overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-build.sh ${BR2_EXTERNAL_NERVES_PATH}/board/nerves-common/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="${NERVES_DEFCONFIG_DIR}/post-createfs.sh"
+BR2_ROOTFS_USERS_TABLES="${NERVES_DEFCONFIG_DIR}/users_table.txt"
 BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20260527.tar.gz"
@@ -88,3 +89,19 @@ BR2_PACKAGE_RPI_DISTRO_BLUEZ_FIRMWARE=y
 # Realtek RTL8761B/BU USB BT dongle firmware (e.g. TP-Link UB500) -> /lib/firmware/rtl_bt
 BR2_PACKAGE_LINUX_FIRMWARE=y
 BR2_PACKAGE_LINUX_FIRMWARE_RTL_87XX_BT=y
+
+# ---- Custom: USB storage backup (Samba) ----
+# Buildroot's samba4 package installs the full binary set unconditionally
+# — nmbd, winbindd, smbclient, and the other client tools all ship in the
+# image (verified in the built rootfs); the BR2_PACKAGE_SAMBA4_* options
+# below only gate AD DC support, ADS, and smbtorture. Nerves has no init
+# system, though: erlinit boots only the BEAM, so the app is the only
+# thing that ever execs a samba binary. It generates smb.conf under
+# /data/samba and, at runtime, runs exactly one samba process — smbd -F
+# under MuonTrap — only while a share is enabled; nmbd and winbindd never
+# execute. Buildroot 2026.05.1 ships Samba 4.24.3; our glibc toolchain
+# satisfies its MMU/WCHAR/NPTL/!static/SYNC_4 gates.
+BR2_PACKAGE_SAMBA4=y
+# BR2_PACKAGE_SAMBA4_AD_DC is not set
+# BR2_PACKAGE_SAMBA4_ADS is not set
+# BR2_PACKAGE_SAMBA4_SMBTORTURE is not set

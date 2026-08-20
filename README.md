@@ -10,11 +10,13 @@ built in CI so consumers never need a local buildroot toolchain.
 ```
 .
 ├── shared/
-│   └── linux-bluetooth.config  # canonical kernel fragment (edit here → make sync)
+│   ├── linux-bluetooth.config  # canonical kernel fragment (edit here → make sync)
+│   └── users_table.txt         # canonical Buildroot users table (edit here → make sync)
 ├── rpi0/  rpi0_2/  rpi3/  rpi4/  rpi5/   # one Mix project per BT-capable target
 │   ├── mix.exs                 #   artifact_sites → THIS repo's Releases
 │   ├── nerves_defconfig        #   + BlueZ/D-Bus + firmware pkgs + kernel fragment ref
-│   └── linux-bluetooth.config  #   synced copy (referenced by the build)
+│   ├── linux-bluetooth.config  #   synced copy (referenced by the build)
+│   └── users_table.txt         #   synced copy (referenced by the build)
 ├── Makefile                    # `make sync` / `make check`
 └── .github/workflows/build.yml # matrix build → GitHub Releases
 ```
@@ -29,10 +31,14 @@ target via a git `sparse:` dep and so artifact checksums stay correct.
 
 ## The shared-fragment workflow
 
-`shared/*.config` are the source of truth. Each target references a **local
-copy** (e.g. `rpi3/linux-bluetooth.config`) via
-`BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES` in its `nerves_defconfig`. After
-editing anything under `shared/`:
+`shared/*.config` (kernel fragments), `shared/*.txt` (e.g. the Buildroot
+users table, `shared/users_table.txt`), and `shared/*.sh` (shell helpers
+like `shared/samba-prune.sh`) are the source of truth. Each target
+references a **local copy** (e.g. `rpi3/linux-bluetooth.config`,
+`rpi3/users_table.txt`) via `BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES` /
+`BR2_ROOTFS_USERS_TABLES` (as `${NERVES_DEFCONFIG_DIR}/...`) in its
+`nerves_defconfig`, while the .sh helper copies are invoked from each
+target's `post-build.sh`. After editing anything under `shared/`:
 
 ```sh
 make sync     # materialize copies into every target subdir

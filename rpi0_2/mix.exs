@@ -62,7 +62,7 @@ defmodule NervesSystemRpi02.MixProject do
         {"TARGET_OS", "linux"},
         {"TARGET_ABI", "gnu"},
         {"TARGET_GCC_FLAGS",
-          "-mabi=lp64 -fstack-protector-strong -mcpu=cortex-a53 -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
+         "-mabi=lp64 -fstack-protector-strong -mcpu=cortex-a53 -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
       ],
       checksum: package_files()
     ]
@@ -127,6 +127,8 @@ defmodule NervesSystemRpi02.MixProject do
       "ramoops-overlay.dts",
       "README.md",
       "REUSE.toml",
+      "samba-prune.sh",
+      "users_table.txt",
       "VERSION"
     ]
   end
