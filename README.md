@@ -31,12 +31,14 @@ target via a git `sparse:` dep and so artifact checksums stay correct.
 
 ## The shared-fragment workflow
 
-`shared/*.config` (kernel fragments) and `shared/*.txt` (e.g. the Buildroot
-users table, `shared/users_table.txt`) are the source of truth. Each target
+`shared/*.config` (kernel fragments), `shared/*.txt` (e.g. the Buildroot
+users table, `shared/users_table.txt`), and `shared/*.sh` (shell helpers
+like `shared/samba-prune.sh`) are the source of truth. Each target
 references a **local copy** (e.g. `rpi3/linux-bluetooth.config`,
 `rpi3/users_table.txt`) via `BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES` /
 `BR2_ROOTFS_USERS_TABLES` (as `${NERVES_DEFCONFIG_DIR}/...`) in its
-`nerves_defconfig`. After editing anything under `shared/`:
+`nerves_defconfig`, while the .sh helper copies are invoked from each
+target's `post-build.sh`. After editing anything under `shared/`:
 
 ```sh
 make sync     # materialize copies into every target subdir
