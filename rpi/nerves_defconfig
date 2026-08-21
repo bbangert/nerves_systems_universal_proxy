@@ -109,3 +109,7 @@ BR2_PACKAGE_SAMBA4=y
 # BR2_PACKAGE_SAMBA4_AD_DC is not set
 # BR2_PACKAGE_SAMBA4_ADS is not set
 # BR2_PACKAGE_SAMBA4_SMBTORTURE is not set
+# fsck.fat/mkfs.fat for repairing dirty vfat sticks before mount (yanked drives return EIO otherwise; ext4 gets the same via e2fsprogs)
+BR2_PACKAGE_DOSFSTOOLS=y
+BR2_PACKAGE_DOSFSTOOLS_FSCK_FAT=y
+BR2_PACKAGE_DOSFSTOOLS_MKFS_FAT=y
