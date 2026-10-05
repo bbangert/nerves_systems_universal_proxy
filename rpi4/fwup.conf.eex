@@ -10,14 +10,14 @@ include("${NERVES_SDK_IMAGES:-.}/fwup_include/fwup-common.conf")
 # Special case files
 # * start4.elf   - required in the autoboot partition to boot
 # * cmdline*.txt - selectively programmed based on the slot
-file-resource start4.elf { host-path = "${NERVES_SYSTEM}/images/rpi-firmware/start4x.elf" }
+file-resource start4.elf { host-path = "${NERVES_SYSTEM}/images/rpi-firmware/start4.elf" }
 file-resource cmdline-a.txt { host-path = "${NERVES_SYSTEM}/images/cmdline-a.txt" }
 file-resource cmdline-b.txt { host-path = "${NERVES_SYSTEM}/images/cmdline-b.txt" }
 
 <%
 # Define file resources - order matters for firmware update
 file_resources = [
-  %{name: "fixup4.dat", path: "${NERVES_SYSTEM}/images/rpi-firmware/fixup4x.dat"},
+  %{name: "fixup4.dat", path: "${NERVES_SYSTEM}/images/rpi-firmware/fixup4.dat"},
   %{name: "config.txt", path: "${NERVES_SYSTEM}/images/config.txt"},
   %{name: "kernel8.img", path: "${NERVES_SYSTEM}/images/Image"},
   %{name: "bcm2711-rpi-4-b.dtb", path: "${NERVES_SYSTEM}/images/bcm2711-rpi-4-b.dtb"},
