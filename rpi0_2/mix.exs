@@ -111,6 +111,7 @@ defmodule NervesSystemRpi02.MixProject do
     [
       "fwup_include",
       "rootfs_overlay",
+      "cec-prune.sh",
       "CHANGELOG.md",
       "cmdline-a.txt",
       "cmdline-b.txt",
@@ -120,6 +121,7 @@ defmodule NervesSystemRpi02.MixProject do
       "LICENSES/*",
       "linux-6.18.defconfig",
       "linux-bluetooth.config",
+      "linux-cec.config",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",

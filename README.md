@@ -62,6 +62,39 @@ firmware, so this package is what lets the kernel bring up the radio. (rpi5
 already enabled it upstream.) No `.hcd` is committed to this repo — the package
 fetches them at build time and gets the board mapping right for us.
 
+## HDMI-CEC (rpi0_2, rpi4)
+
+Two pieces, both in `shared/`:
+
+- `linux-cec.config` — kernel fragment turning on the vc4 HDMI CEC driver
+  (`/dev/cecN`, one per HDMI port). Upstream already has it on for rpi3/rpi4/
+  rpi5; rpi0_2 (Zero 2 W / 3A+) needs it.
+- `cec-prune.sh` — post-build hook. `cec-ctl` only exists in Buildroot's
+  `libv4l` package (`BR2_PACKAGE_LIBV4L_UTILS`), which installs the whole
+  v4l-utils toolset plus libv4l's runtime libs. cec-ctl is statically linked
+  against libcecutil and needs only glibc, so the hook deletes every other
+  file libv4l installed, driven by Buildroot's own `packages-file-list.txt`
+  manifest rather than a hard-coded name list.
+
+Both are referenced from `rpi0_2` and `rpi4` (`nerves_defconfig`,
+`post-build.sh`, `package_files` in `mix.exs`); the other targets carry
+synced copies but don't use them yet. `universal_proxy` drives cec-ctl from
+`UniversalProxy.Cec`.
+
+## Building a system locally (no CI)
+
+```sh
+cd rpi4
+MIX_ENV=prod mix deps.get
+MIX_ENV=prod mix compile          # full Buildroot build into ./.nerves/build
+```
+
+The artifact lands in `rpi4/.nerves/artifacts/`. Point the firmware at this
+checkout with `UP_SYSTEMS_PATH=/path/to/nerves_systems_universal_proxy` (see
+`up_nerves_systems/0` in universal_proxy's `mix.exs`) and it uses that
+artifact as a `path:` dep — no tag, no release upload. Host OTP must share the
+system's major (29); the CI versions in `.github/workflows/build.yml` work.
+
 ## Adding another target
 
 Same recipe as the existing five:

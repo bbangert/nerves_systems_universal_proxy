@@ -6,6 +6,9 @@ set -e
 # safe no-op on targets without samba (x86_64/musl).
 sh "$(dirname "$0")/samba-prune.sh" "$1"
 
+# Keep only cec-ctl out of everything v4l-utils installs (see shared/cec-prune.sh).
+sh "$(dirname "$0")/cec-prune.sh" "$1"
+
 # Create the fwup ops script to handling MicroSD/eMMC operations at runtime
 # NOTE: revert.fw is the previous, more limited version of this. ops.fw is
 #       backwards compatible.
