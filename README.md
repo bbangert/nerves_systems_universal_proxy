@@ -62,6 +62,51 @@ firmware, so this package is what lets the kernel bring up the radio. (rpi5
 already enabled it upstream.) No `.hcd` is committed to this repo — the package
 fetches them at build time and gets the board mapping right for us.
 
+## HDMI-CEC (rpi0_2, rpi3, rpi4, rpi5)
+
+Two pieces, both in `shared/`:
+
+- `linux-cec.config` — kernel fragment turning on the vc4 HDMI CEC driver
+  (`/dev/cecN`, one per HDMI port). Upstream already has it on for rpi3/rpi4/
+  rpi5 (Pi 5's HDMI is vc4 as well); rpi0_2 (Zero 2 W / 3A+) needs it. The
+  driver only binds under the vc4 KMS display path (`dtoverlay=vc4-kms-v3d`
+  in `config.txt`).
+- `cec-prune.sh` — post-build hook. `cec-ctl` only exists in Buildroot's
+  `libv4l` package (`BR2_PACKAGE_LIBV4L_UTILS`), which installs the whole
+  v4l-utils toolset plus libv4l's runtime libs. cec-ctl is statically linked
+  against libcecutil and needs only glibc, so the hook deletes every other
+  file libv4l installed, driven by Buildroot's own `packages-file-list.txt`
+  manifest rather than a hard-coded name list.
+
+Both are referenced from `rpi0_2`, `rpi3`, `rpi4` and `rpi5`
+(`nerves_defconfig`, `post-build.sh`, `package_files` in `mix.exs`).
+`universal_proxy` drives cec-ctl from `UniversalProxy.Cec`.
+
+rpi3 was switched from the firmware display path to vc4 KMS for this
+(`dtoverlay=vc4-kms-v3d,cma-64`, `disable_fw_kms_setup=1`,
+`display_auto_detect=1` replacing the firmware-only `rpi-ft5406`/
+`rpi-backlight` overlays). Under KMS its HDMI audio moves from the bcm2835
+card to a separate `vc4-hdmi` ALSA card; the headphone jack stays on bcm2835
+(`dtparam=audio=on`). rpi0_2/rpi4/rpi5 were already on KMS.
+
+`rpi`, `rpi0` and `rpi2` stay on the firmware display path and carry synced
+copies of both files without using them (no `/dev/cecN`); `x86_64` has no
+CEC.
+
+## Building a system locally (no CI)
+
+```sh
+cd rpi4
+MIX_ENV=prod mix deps.get
+MIX_ENV=prod mix compile          # full Buildroot build into ./.nerves/build
+```
+
+The artifact lands in `rpi4/.nerves/artifacts/`. Point the firmware at this
+checkout with `UP_SYSTEMS_PATH=/path/to/nerves_systems_universal_proxy` (see
+`up_nerves_systems/0` in universal_proxy's `mix.exs`) and it uses that
+artifact as a `path:` dep — no tag, no release upload. Host OTP must share the
+system's major (29); the CI versions in `.github/workflows/build.yml` work.
+
 ## Adding another target
 
 Same recipe as the existing five:
