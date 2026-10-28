@@ -31,7 +31,7 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20260527.tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="${NERVES_DEFCONFIG_DIR}/linux-6.18.defconfig"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config ${NERVES_DEFCONFIG_DIR}/linux-cec.config"
 BR2_LINUX_KERNEL_XZ=y
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="broadcom/bcm2712-rpi-5-b broadcom/bcm2712-rpi-cm5l-cm4io broadcom/bcm2712-rpi-cm5l-cm5io broadcom/bcm2712-rpi-cm5-cm4io broadcom/bcm2712-rpi-cm5-cm5io"
@@ -117,3 +117,13 @@ BR2_PACKAGE_SAMBA4=y
 BR2_PACKAGE_DOSFSTOOLS=y
 BR2_PACKAGE_DOSFSTOOLS_FSCK_FAT=y
 BR2_PACKAGE_DOSFSTOOLS_MKFS_FAT=y
+
+# ---- Custom: HDMI-CEC (wake / input-select / volume-step the AV receiver) ----
+# The kernel side is the vc4 HDMI CEC driver (shared/linux-cec.config ->
+# /dev/cecN). Userspace is cec-ctl, which only Buildroot's libv4l package
+# provides (BR2_PACKAGE_LIBV4L_UTILS builds the whole v4l-utils toolset
+# unconditionally). cec-ctl is statically linked against libcecutil and needs
+# only glibc, so post-build runs cec-prune.sh to strip every other file libv4l
+# installs (v4l2-ctl, media-ctl, DVB/IR tools, libv4l*.so, udev keymaps).
+BR2_PACKAGE_LIBV4L=y
+BR2_PACKAGE_LIBV4L_UTILS=y

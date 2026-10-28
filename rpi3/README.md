@@ -24,7 +24,7 @@ your Nerves system dependency.*
 | ADC                  | No                                                          |
 | PWM                  | Yes, but no Elixir support                                  |
 | UART                 | 1 available - `ttyAMA0`                                     |
-| Display              | HDMI or 7" RPi Touchscreen                                  |
+| Display              | HDMI (vc4 KMS, with CEC) or 7" RPi Touchscreen              |
 | Camera               | Yes - via rpi-userland                                      |
 | Ethernet             | Yes                                                         |
 | WiFi                 | Yes                                                         |
@@ -86,14 +86,15 @@ The Raspberry Pi has many options for audio output. This system supports the
 HDMI and stereo audio jack output. The Linux ALSA drivers are used for audio
 output.
 
-The general Raspberry Pi audio documentation mostly applies to Nerves. For
-example, to force audio out the HDMI port, run:
+This system runs the vc4 KMS display driver (`dtoverlay=vc4-kms-v3d` in
+`config.txt`), so HDMI and the stereo jack are separate ALSA cards rather than
+one card with an output switch: HDMI audio is the `vc4-hdmi` card and the
+stereo jack is the `bcm2835 Headphones` card (`aplay -l` lists both). Pick the
+card/device directly (e.g. `aplay -D hw:CARD=vc4hdmi ...`); the old
+`amixer cset numid=3` routing switch no longer applies. HDMI audio only comes
+up when a display or AV receiver is attached and presents an EDID.
 
-```elixir
-cmd("amixer cset numid=3 2")
-```
-
-Change the last argument to `amixer` to `1` to output to the stereo output jack.
+KMS also provides HDMI-CEC on `/dev/cec0` (driven with `cec-ctl`).
 
 ## Linux's preempt_rt patches
 
