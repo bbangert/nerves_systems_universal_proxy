@@ -29,10 +29,10 @@ permissions:
   contents: write   # needed to upload Release assets
 
 env:
-  # nerves_system_br 1.34.0 targets OTP 29; the host toolchain must match
+  # nerves_system_br 1.35.3 ships OTP 29.1.2; the host toolchain must match
   # that major or Nerves aborts with a host/target OTP mismatch. Track the
   # latest OTP 29.x + Elixir here.
-  OTP_VERSION: "29.0.5"
+  OTP_VERSION: "29.1.2"
   ELIXIR_VERSION: "1.20.3-otp-29"
 
 jobs:
@@ -101,7 +101,7 @@ jobs:
           path: |
             ~/.nerves
             ~/.cache/nerves
-          key: nerves-${{ matrix.target }}-${{ hashFiles(format('{0}/nerves_defconfig', matrix.target), format('{0}/linux-*.config', matrix.target)) }}
+          key: nerves-${{ matrix.target }}-${{ hashFiles(format('{0}/nerves_defconfig', matrix.target), format('{0}/linux-*.config', matrix.target), format('{0}/linux-*.defconfig', matrix.target), format('{0}/mix.lock', matrix.target), format('{0}/mix.exs', matrix.target)) }}
           restore-keys: nerves-${{ matrix.target }}-
 
       - name: Build the system artifact
