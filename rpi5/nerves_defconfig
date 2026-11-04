@@ -5,6 +5,7 @@ BR2_TOOLCHAIN_EXTERNAL_CUSTOM=y
 BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD=y
 BR2_TOOLCHAIN_EXTERNAL_URL="https://github.com/nerves-project/toolchains/releases/download/v15.3.0/nerves_toolchain_aarch64_nerves_linux_gnu-linux_${shell uname -m}-15.3.0-8DAF9F3.tar.xz"
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX="aarch64-nerves-linux-gnu"
+BR2_TOOLCHAIN_EXTERNAL_GCC_15=y
 BR2_TOOLCHAIN_EXTERNAL_HEADERS_6_0=y
 BR2_TOOLCHAIN_EXTERNAL_CUSTOM_GLIBC=y
 # BR2_TOOLCHAIN_EXTERNAL_INET_RPC is not set
@@ -31,7 +32,7 @@ BR2_LINUX_KERNEL_CUSTOM_TARBALL=y
 BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION="https://github.com/raspberrypi/linux/archive/refs/tags/stable_20260527.tar.gz"
 BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
 BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="${NERVES_DEFCONFIG_DIR}/linux-6.18.defconfig"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="${NERVES_DEFCONFIG_DIR}/linux-bluetooth.config ${NERVES_DEFCONFIG_DIR}/linux-cec.config"
 BR2_LINUX_KERNEL_XZ=y
 BR2_LINUX_KERNEL_DTS_SUPPORT=y
 BR2_LINUX_KERNEL_INTREE_DTS_NAME="broadcom/bcm2712-rpi-5-b broadcom/bcm2712-rpi-cm5l-cm4io broadcom/bcm2712-rpi-cm5l-cm5io broadcom/bcm2712-rpi-cm5-cm4io broadcom/bcm2712-rpi-cm5-cm5io"

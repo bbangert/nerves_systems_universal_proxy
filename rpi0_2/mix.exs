@@ -70,8 +70,8 @@ defmodule NervesSystemRpi02.MixProject do
 
   defp deps do
     [
-      {:nerves, "~> 1.11", runtime: false},
-      {:nerves_system_br, "1.34.3", runtime: false},
+      {:nerves, "~> 1.11 or ~> 2.0 or ~> 2.0.0-dev", runtime: false},
+      {:nerves_system_br, "1.35.3", runtime: false},
       {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 15.3.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
@@ -120,6 +120,7 @@ defmodule NervesSystemRpi02.MixProject do
       "LICENSES/*",
       "linux-6.18.defconfig",
       "linux-bluetooth.config",
+      "linux-cec.config",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
