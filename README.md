@@ -84,28 +84,47 @@ copy of the fragment without using it (no `/dev/cecN`); `x86_64` has no CEC.
 
 ## HDMI graphics memory: CMA, not gpu_mem (rpi0_2, rpi3, rpi4, rpi5)
 
-Under vc4 KMS, HDMI graphics (framebuffers, scanout, V3D/GL buffers) are
-allocated from the Linux CMA pool, sized by the `cma-*` parameter of
-`dtoverlay=vc4-kms-v3d`. `gpu_mem` only feeds the firmware-side services
-(codecs, camera, the firmware audio service), so it stays at 32 (16 would drop
-onboard audio; Pi 5 ignores it). CMA pages aren't lost when graphics is idle:
-the kernel lends them to movable allocations (userspace, page cache), but
-unmovable kernel allocations can't use them.
+Under vc4 KMS, HDMI graphics memory comes from Linux, not `gpu_mem`. `gpu_mem`
+only feeds the firmware-side services (codecs, camera, the firmware audio
+service), so it stays at 32 (16 would drop onboard audio; Pi 5 ignores it).
+Where the buffers come from depends on the GPU generation:
 
-The `vc4-kms-v3d`, `vc4-kms-v3d-pi4` and `vc4-kms-v3d-pi5` overlays all
-default to 256MB (`cma-overlay.dts` in the kernel; without the overlay the
-base device trees reserve only 64MB).
+- **Pi 0-3 (rpi0_2, rpi3): VC4.** The `vc4` driver runs both display and 3D,
+  and allocates every GPU buffer (framebuffers, scanout, GL render buffers)
+  contiguously from the CMA pool (`drm_gem_dma`). CMA caps how much graphics
+  can run, so these targets raise it.
+- **Pi 4/5 (rpi4, rpi5): V3D.** 3D is the separate `v3d` driver. It has its
+  own MMU and allocates render buffers from shmem (ordinary pages), so a larger
+  CMA pool doesn't give GL more room. CMA only backs the display side (`vc4`
+  dumb/scanout buffers). On Pi 5 the HVS also sits behind an IOMMU
+  (`iommus = <&iommu4>` in `bcm2712.dtsi`). Their defaults stay as they are.
+  Raise them only if you see CMA allocation failures, e.g. `CmaFree` near zero
+  in `/proc/meminfo` or `cma_alloc` errors in dmesg.
+
+The size is the `cma-*` parameter of `dtoverlay=vc4-kms-v3d`, which the
+firmware maps to a per-SoC overlay (`overlay_map.dts`). The defaults in the
+pinned kernel (`stable_20260527`) match the firmware `.dtbo`s we ship
+(`1.20260521`):
+
+- `vc4-kms-v3d` (bcm2835/2710): 256MB, from `cma-overlay.dts`
+- `vc4-kms-v3d-pi4`: overrides it to 508MB (`(512-4)*1024*1024`)
+- `vc4-kms-v3d-pi5`: overrides it to 64MB
+
+Without the overlay, the base device trees reserve 64MB. CMA pages aren't lost
+while display or graphics leaves them idle: the kernel lends them to movable
+allocations (userspace, page cache). Unmovable kernel allocations can't use
+them.
 
 | Target | RAM         | `config.txt`                    | CMA   |
 |--------|-------------|---------------------------------|-------|
 | rpi0_2 | 512MB       | `dtoverlay=vc4-kms-v3d,cma-192` | 192MB |
 | rpi3   | 1GB         | `dtoverlay=vc4-kms-v3d,cma-256` | 256MB |
-| rpi4   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 256MB (overlay default) |
-| rpi5   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 256MB (overlay default) |
+| rpi4   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 508MB (overlay default) |
+| rpi5   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 64MB (overlay default) |
 
-rpi0_2 stays below the default because 256MB of a 512MB board would leave
-little for unmovable kernel memory. On rpi4/rpi5, append e.g. `,cma-512` for
-heavier GL work.
+rpi0_2 stays below the 256MB default because that much of a 512MB board would
+leave little for unmovable kernel memory. To check the reservation a board
+actually got, read `CmaTotal` in `/proc/meminfo`.
 
 ## Adding another target
 

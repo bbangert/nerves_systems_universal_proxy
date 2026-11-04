@@ -37,9 +37,9 @@ camera_auto_detect=1
 # Automatically load overlays for detected DSI displays
 display_auto_detect=1
 
-# Enable the DRM VC4 KMS/V3D driver. Under KMS, HDMI graphics (framebuffers,
-# scanout, V3D/GL buffers) come from the Linux CMA pool, not gpu_mem, so
-# gpu_mem stays at 32. The overlay's 256MB default is too much for 512MB of
+# Enable the DRM VC4 KMS/V3D driver. On Pi 0-3 the vc4 driver allocates every
+# GPU buffer (framebuffers, scanout, GL render buffers) from the Linux CMA
+# pool, not gpu_mem, so gpu_mem stays at 32. The overlay's 256MB default is too much for 512MB of
 # RAM, so 192MB: room for graphics while leaving ~290MB of the ~480MB Linux
 # sees for unmovable kernel allocations. CMA pages still serve movable
 # (userspace, page cache) allocations while graphics isn't using them.

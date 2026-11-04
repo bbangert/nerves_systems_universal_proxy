@@ -35,9 +35,9 @@ display_auto_detect=1
 # Enable the DRM VC4 KMS driver. It owns HDMI, which is what creates
 # /dev/cec0 for HDMI-CEC and moves HDMI audio from bcm2835 to the vc4-hdmi
 # ALSA card (the overlay sets snd_bcm2835.enable_hdmi=0); the headphone jack
-# stays on bcm2835 via dtparam=audio=on above. Under KMS, HDMI graphics
-# (framebuffers, scanout, V3D/GL buffers) come from the Linux CMA pool, not
-# gpu_mem, so gpu_mem stays at 32. 256MB is the overlay's default, set
+# stays on bcm2835 via dtparam=audio=on above. On Pi 0-3 the vc4 driver
+# allocates every GPU buffer (framebuffers, scanout, GL render buffers) from
+# the Linux CMA pool, not gpu_mem, so gpu_mem stays at 32. 256MB is the overlay's default, set
 # explicitly here; CMA pages still serve movable allocations while graphics
 # isn't using them.
 dtoverlay=vc4-kms-v3d,cma-256

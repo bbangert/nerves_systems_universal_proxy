@@ -34,10 +34,12 @@ camera_auto_detect=1
 # Automatically load overlays for detected DSI displays
 display_auto_detect=1
 
-# Enable the DRM VC4 KMS/V3D driver. HDMI graphics (framebuffers, scanout,
-# V3D/GL buffers) come from the Linux CMA pool; Pi 5 ignores gpu_mem. The
-# overlay (vc4-kms-v3d-pi5) defaults to a 256MB CMA pool, enough for HDMI
-# graphics; append e.g. ",cma-512" to raise it.
+# Enable the DRM VC4 KMS/V3D driver. HDMI graphics memory comes from Linux
+# (Pi 5 ignores gpu_mem). GL render buffers come from shmem: the v3d driver
+# has its own MMU, so CMA size doesn't limit them. CMA only backs vc4
+# display/scanout buffers, and the HVS sits behind an IOMMU. The
+# vc4-kms-v3d-pi5 overlay defaults to 64MB of CMA. Only raise it
+# (e.g. ",cma-128") if you see CMA allocation failures.
 dtoverlay=vc4-kms-v3d
 max_framebuffers=2
 
