@@ -73,7 +73,7 @@ path (`dtoverlay=vc4-kms-v3d` in `config.txt`). It's referenced from `rpi0_2`,
 No CEC userspace tool is shipped.
 
 rpi3 was switched from the firmware display path to vc4 KMS for this
-(`dtoverlay=vc4-kms-v3d,cma-64`, `disable_fw_kms_setup=1`,
+(`dtoverlay=vc4-kms-v3d`, `disable_fw_kms_setup=1`,
 `display_auto_detect=1` replacing the firmware-only `rpi-ft5406`/
 `rpi-backlight` overlays). Under KMS its HDMI audio moves from the bcm2835
 card to a separate `vc4-hdmi` ALSA card; the headphone jack stays on bcm2835
@@ -81,6 +81,31 @@ card to a separate `vc4-hdmi` ALSA card; the headphone jack stays on bcm2835
 
 `rpi`, `rpi0` and `rpi2` stay on the firmware display path and carry a synced
 copy of the fragment without using it (no `/dev/cecN`); `x86_64` has no CEC.
+
+## HDMI graphics memory: CMA, not gpu_mem (rpi0_2, rpi3, rpi4, rpi5)
+
+Under vc4 KMS, HDMI graphics (framebuffers, scanout, V3D/GL buffers) are
+allocated from the Linux CMA pool, sized by the `cma-*` parameter of
+`dtoverlay=vc4-kms-v3d`. `gpu_mem` only feeds the firmware-side services
+(codecs, camera, the firmware audio service), so it stays at 32 (16 would drop
+onboard audio; Pi 5 ignores it). CMA pages aren't lost when graphics is idle:
+the kernel lends them to movable allocations (userspace, page cache), but
+unmovable kernel allocations can't use them.
+
+The `vc4-kms-v3d`, `vc4-kms-v3d-pi4` and `vc4-kms-v3d-pi5` overlays all
+default to 256MB (`cma-overlay.dts` in the kernel; without the overlay the
+base device trees reserve only 64MB).
+
+| Target | RAM         | `config.txt`                    | CMA   |
+|--------|-------------|---------------------------------|-------|
+| rpi0_2 | 512MB       | `dtoverlay=vc4-kms-v3d,cma-192` | 192MB |
+| rpi3   | 1GB         | `dtoverlay=vc4-kms-v3d,cma-256` | 256MB |
+| rpi4   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 256MB (overlay default) |
+| rpi5   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 256MB (overlay default) |
+
+rpi0_2 stays below the default because 256MB of a 512MB board would leave
+little for unmovable kernel memory. On rpi4/rpi5, append e.g. `,cma-512` for
+heavier GL work.
 
 ## Adding another target
 
