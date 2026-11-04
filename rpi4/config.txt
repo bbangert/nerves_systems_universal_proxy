@@ -37,7 +37,13 @@ camera_auto_detect=1
 # Automatically load overlays for detected DSI displays
 display_auto_detect=1
 
-# Enable DRM VC4 V3D driver
+# Enable the DRM VC4 KMS/V3D driver. HDMI graphics memory comes from Linux,
+# not gpu_mem, so gpu_mem stays at 32. GL render buffers come from shmem: the
+# v3d driver has its own MMU, so CMA size doesn't limit them. CMA only backs
+# vc4 display/scanout buffers. The vc4-kms-v3d-pi4 overlay defaults to 508MB
+# of CMA. Raise it (",cma-size=...") only after a graphics allocation has
+# failed because CMA ran out (kernel log "alloc failed, req-size:", DRM
+# -ENOMEM). A low CmaFree alone doesn't count: movable pages borrow CMA.
 dtoverlay=vc4-kms-v3d
 max_framebuffers=2
 

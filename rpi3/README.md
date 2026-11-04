@@ -96,6 +96,10 @@ up when a display or AV receiver is attached and presents an EDID.
 
 KMS also provides HDMI-CEC on `/dev/cec0` (the kernel CEC API).
 
+HDMI graphics under KMS (framebuffers, scanout, V3D/GL buffers) come from the
+Linux CMA pool, not `gpu_mem`: `config.txt` sets `dtoverlay=vc4-kms-v3d,cma-256`
+and keeps `gpu_mem=32` for the firmware audio service.
+
 ## Linux's preempt_rt patches
 
 If you need better real-time performance from the Linux kernel, the `preempt_rt`
