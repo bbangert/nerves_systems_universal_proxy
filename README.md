@@ -98,8 +98,12 @@ Where the buffers come from depends on the GPU generation:
   CMA pool doesn't give GL more room. CMA only backs the display side (`vc4`
   dumb/scanout buffers). On Pi 5 the HVS also sits behind an IOMMU
   (`iommus = <&iommu4>` in `bcm2712.dtsi`). Their defaults stay as they are.
-  Raise them only if you see CMA allocation failures, e.g. `CmaFree` near zero
-  in `/proc/meminfo` or `cma_alloc` errors in dmesg.
+  Raise them only after a graphics buffer allocation has actually failed
+  because CMA ran out: the kernel logs `__cma_alloc: ...: alloc failed,
+  req-size: ...` and DRM buffer creation returns `-ENOMEM`. A low `CmaFree`
+  is not evidence on its own, because movable userspace and page-cache pages
+  borrow CMA and are migrated out when graphics needs the space. A bigger pool
+  takes memory away from unmovable kernel allocations.
 
 The size is the `cma-*` parameter of `dtoverlay=vc4-kms-v3d`, which the
 firmware maps to a per-SoC overlay (`overlay_map.dts`). The defaults in the
@@ -123,8 +127,8 @@ them.
 | rpi5   | 1GB and up  | `dtoverlay=vc4-kms-v3d`         | 64MB (overlay default) |
 
 rpi0_2 stays below the 256MB default because that much of a 512MB board would
-leave little for unmovable kernel memory. To check the reservation a board
-actually got, read `CmaTotal` in `/proc/meminfo`.
+leave little for unmovable kernel memory. `CmaTotal` in `/proc/meminfo` shows
+the size of the reservation a board actually got.
 
 ## Adding another target
 
