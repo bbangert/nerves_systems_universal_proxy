@@ -130,6 +130,44 @@ rpi0_2 stays below the 256MB default because that much of a 512MB board would
 leave little for unmovable kernel memory. `CmaTotal` in `/proc/meminfo` shows
 the size of the reservation a board actually got.
 
+## GPU and the HDMI console (rpi0_2, rpi3, rpi4, rpi5)
+
+The app draws its TV UI straight to the HDMI connector over DRM/KMS
+(Emerge, Skia). The GL path needs Mesa, which rpi4/rpi5 already had (v3d).
+rpi3 and rpi0_2 now ship it too:
+
+```
+BR2_PACKAGE_MESA3D=y
+BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_VC4=y
+BR2_PACKAGE_MESA3D_OPENGL_ES=y
+```
+
+The vc4 driver selects EGL, GBM and libdrm (with its vc4 helper), so those
+aren't listed. No LLVM, no software rasteriser: without `/dev/dri` EGL just
+fails, and the app falls back to CPU rendering. This adds about 4MB to the
+compressed rootfs (rpi3: 36.6MB to 40.6MB system squashfs). Nothing loads
+Mesa until the UI starts.
+
+fbcon stays bound to the HDMI output on all four KMS targets, as before. The
+cmdline (`cmdline-a.txt`, `cmdline-b.txt`) only adds `logo.nologo` and
+`vt.global_cursor_default=0`, so the TV shows a plain dark console with no
+logo or blinking cursor while the app isn't drawing. The app's UI takes over
+the display while it runs, and fbcon repaints the console when it stops.
+
+Don't move fbcon off the display (`fbcon=map:1`) or drop fbdev
+(`drm_kms_helper.fbdev_emulation=0`) to hide the console. Both were tried on a
+Pi 3 B+. The vc4 HDMI block needs the CRTC on for HDMI audio
+(`vc4_hdmi_write_infoframe: Packet RAM has to be on`) and for CEC transmits
+(the logical-address claim times out). Only bound fbcon turns the CRTC back on
+by itself when a TV is plugged in or powered on after boot:
+
+- Without fbdev, nothing ever sets a mode.
+- With `fbcon=map:1`, fbdev sets a mode at boot only if a TV is already
+  there.
+
+For the same reason, the app blanks the TV by drawing black, never by turning
+the output off.
+
 ## Adding another target
 
 Same recipe as the existing five:
