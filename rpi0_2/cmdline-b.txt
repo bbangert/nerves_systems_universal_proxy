@@ -1,2 +1,2 @@
 # See cmdline-a.txt
-root=/dev/mmcblk0p6 rootwait console=serial0,115200 quiet fbcon=map:1
+root=/dev/mmcblk0p6 rootwait console=serial0,115200 quiet logo.nologo vt.global_cursor_default=0

@@ -148,21 +148,25 @@ fails, and the app falls back to CPU rendering. This adds about 4MB to the
 compressed rootfs (rpi3: 36.6MB to 40.6MB system squashfs). Nothing loads
 Mesa until the UI starts.
 
-All four KMS targets boot with `fbcon=map:1` in `cmdline-a.txt` and
-`cmdline-b.txt`. It maps the console to a framebuffer that doesn't exist, so
-fbcon never takes over `/dev/fb0` (only the dummy console is bound): no boot
-console or logo is drawn on the TV, and none is repainted when the app
-releases the display. `/dev/fb0` itself stays. `console=tty1` and erlinit's
-`-c tty1` stay as they are: the IEx console on tty1 just has no display
-behind it. The serial console is unaffected.
+fbcon stays bound to the HDMI output on all four KMS targets, as before. The
+cmdline (`cmdline-a.txt`, `cmdline-b.txt`) only adds `logo.nologo` and
+`vt.global_cursor_default=0`, so the TV shows a plain dark console with no
+logo or blinking cursor while the app isn't drawing. The app's UI takes over
+the display while it runs, and fbcon repaints the console when it stops.
 
-Don't use `drm_kms_helper.fbdev_emulation=0` instead, although it would also
-free the idle fbdev buffer (about 8MB of CMA). The fbdev client's boot
-modeset is the only thing that keeps the HDMI CRTC on when no app holds the
-display, and the vc4 HDMI block needs it on. Without it (checked on a
-Pi 3 B+), HDMI audio can't stream (`vc4_hdmi_write_infoframe: Packet RAM has
-to be on`) and the CEC logical-address claim times out at boot. The same
-applies to the app: blanking the TV must draw black, not turn the CRTC off.
+Don't move fbcon off the display (`fbcon=map:1`) or drop fbdev
+(`drm_kms_helper.fbdev_emulation=0`) to hide the console. Both were tried on a
+Pi 3 B+. The vc4 HDMI block needs the CRTC on for HDMI audio
+(`vc4_hdmi_write_infoframe: Packet RAM has to be on`) and for CEC transmits
+(the logical-address claim times out). Only bound fbcon turns the CRTC back on
+by itself when a TV is plugged in or powered on after boot:
+
+- Without fbdev, nothing ever sets a mode.
+- With `fbcon=map:1`, fbdev sets a mode at boot only if a TV is already
+  there.
+
+For the same reason, the app blanks the TV by drawing black, never by turning
+the output off.
 
 ## Adding another target
 
