@@ -107,8 +107,8 @@ Where the buffers come from depends on the GPU generation:
 
 The size is the `cma-*` parameter of `dtoverlay=vc4-kms-v3d`, which the
 firmware maps to a per-SoC overlay (`overlay_map.dts`). The defaults in the
-pinned kernel (`stable_20260527`) match the firmware `.dtbo`s we ship
-(`1.20260521`):
+pinned kernel (`stable_20261103`) match the firmware `.dtbo`s we ship
+(firmware commit `016253866bbd`, built from that kernel):
 
 - `vc4-kms-v3d` (bcm2835/2710): 256MB, from `cma-overlay.dts`
 - `vc4-kms-v3d-pi4`: overrides it to 508MB (`(512-4)*1024*1024`)
